@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DiagnoSync - Type-1 Diabetes Risk Assessment</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: url('bg.jpg') center/cover fixed no-repeat, #f0f4f8;
+            min-height: 100vh;
+            color: #0b0202;
+        }
+        
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .landing-container {
+            max-width: 600px;
+            width: 100%;
+            padding: 40px 20px;
+        }
+
+        .landing-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(10px);
+            padding: 60px 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            border: 1px solid rgba(11, 8, 8, 0.5);
+        }
+
+        .logo {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .landing-card h1 {
+            color: #161010;
+            font-size: 32px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        .landing-card p {
+            color: #0a0505;
+            font-size: 16px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .features {
+            text-align: left;
+            margin: 30px 0;
+            display: grid;
+            gap: 15px;
+        }
+
+        .feature-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px;
+            background: #f5f7fa;
+            border-radius: 8px;
+        }
+
+        .feature-icon {
+            font-size: 24px;
+            min-width: 30px;
+        }
+
+        .feature-text {
+            text-align: left;
+        }
+
+        .feature-text strong {
+            color: #0f0d0d;
+            display: block;
+            margin-bottom: 5px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-text small {
+            color: #080707;
+            font-size: 13px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            grid-column: 1 / -1;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f7fa;
+            transform: translateY(-2px);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 30px 0;
+            color: #999;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+            font-size: 14px;
+        }
+
+        .disclaimer {
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 12px;
+            margin-top: 30px;
+            border-left: 4px solid #721c24;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        @media (max-width: 600px) {
+            .landing-card {
+                padding: 40px 20px;
+            }
+
+            .landing-card h1 {
+                font-size: 24px;
+            }
+
+            .button-group {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-primary {
+                grid-column: 1;
+            }
+        }
+
+        .checkmark {
+            color: #28a745;
+            font-weight: bold;
+        }
+
+        /* Main wrapper for full page */
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .landing-section {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+
+        /* About Section */
+        .about-section {
+            background: white;
+            padding: 80px 40px;
+            text-align: center;
+        }
+
+        .about-section h2 {
+            font-size: 40px;
+            color: #140e0e;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .about-section p {
+            font-size: 18px;
+            color: #0e0808;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .about-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 50px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .feature-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .feature-box:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-box h4 {
+            font-size: 20px;
+            margin-bottom: 15px;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .feature-box p {
+            font-size: 14px;
+            margin: 0;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+
+        /* FAQ Section */
+        .faq-section {
+            background: #f5f7fa;
+            padding: 80px 40px;
+        }
+
+        .faq-section h2 {
+            text-align: center;
+            font-size: 40px;
+            color: #161111;
+            margin-bottom: 60px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .faq-container {
+            display: grid;
+            gap: 20px
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: white;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .faq-item:hover {
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .faq-question {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .faq-icon {
+            font-size: 20px;
+            transition: transform 0.3s;
+            color: #667eea;
+        }
+
+        .faq-item.active .faq-icon {
+            transform: rotate(180deg);
+        }
+
+        .faq-answer {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+            color: #666;
+            line-height: 1.6;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        }
+
+        .faq-item.active .faq-answer {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <!-- Landing Section -->
+        <div class="landing-section">
+            <div class="landing-container">
+                <div class="landing-card">
+                    <div class="logo">
+                        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <!-- Top accent dot -->
+                            <circle cx="40" cy="14" r="3" fill="#1e88e5" stroke="#1e88e5" stroke-width="1"/>
+                            
+                            <!-- Upper left strand with nodes -->
+                            <path d="M 25 28 L 32 28" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="25" cy="28" r="2.5" fill="#1e88e5"/>
+                            <circle cx="32" cy="28" r="2.5" fill="#1e88e5"/>
+                            
+                            <!-- Upper middle left strand -->
+                            <path d="M 27 36 L 34 36" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="27" cy="36" r="2.5" fill="#1e88e5"/>
+                            <circle cx="34" cy="36" r="2.5" fill="#1e88e5"/>
+                            
+                            <!-- Upper right strand with nodes -->
+                            <path d="M 48 28 L 55 28" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="48" cy="28" r="2.5" fill="#1e88e5"/>
+                            <circle cx="55" cy="28" r="2.5" fill="#1e88e5"/>
+                            
+                            <!-- Upper middle right strand -->
+                            <path d="M 46 36 L 53 36" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round"/>
+                            <circle cx="46" cy="36" r="2.5" fill="#1e88e5"/>
+                            <circle cx="53" cy="36" r="2.5" fill="#1e88e5"/>
+                            
+                            <!-- Left to right crossing lines (DNA strands) -->
+                            <path d="M 34 36 L 46 48" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M 46 36 L 34 48" stroke="#1e88e5" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- Bottom zigzag pattern (V shapes) -->
+                            <!-- First V -->
+                            <path d="M 32 52 L 40 62 L 48 52" stroke="#1e88e5" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                            
+                            <!-- Second V (smaller, offset) -->
+                            <path d="M 36 60 L 40 67 L 44 60" stroke="#1e88e5" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <h1>DiagnoSync</h1>
+                    <p>Advanced Type-1 Diabetes Risk Assessment Platform</p>
+
+                    <div class="features">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔬</div>
+                            <div class="feature-text">
+                                <strong>AI-Powered Analysis</strong>
+                                <small>Machine learning model for accurate risk prediction</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🛡️</div>
+                            <div class="feature-text">
+                                <strong>Secure & Private</strong>
+                                <small>Your health data is encrypted and protected</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">📊</div>
+                            <div class="feature-text">
+                                <strong>Track History</strong>
+                                <small>Monitor your health assessments over time</small>
+                            </div>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">👨‍⚕️</div>
+                            <div class="feature-text">
+                                <strong>Clinical Insights</strong>
+                                <small>ICMR-based health recommendations</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="button-group">
+                        <a href="register.html" class="btn btn-primary">Get Started</a>
+                    </div>
+
+                    <div class="divider">Already have an account? <a href="login.html" style="color: #667eea; text-decoration: none; font-weight: 600;">Sign in here</a></div>
+
+                    <div class="disclaimer">
+                        ⚠️ <strong>Important:</strong> This tool is for informational purposes only and should not be used as a substitute for professional medical advice. Always consult a qualified healthcare provider for proper diagnosis and treatment.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- About Section -->
+        <div class="about-section">
+            <h2>About DiagnoSync</h2>
+            <p>DiagnoSync is an advanced machine learning platform designed to assess Type-1 Diabetes risk using clinical data and patient symptoms. Our model is trained on ICMR data repository with thousands of clinical cases.</p>
+            <div class="about-features">
+                <div class="feature-box">
+                    <h4>🔬 AI-Powered</h4>
+                    <p>Advanced machine learning algorithms for accurate risk prediction</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🏥 Clinical Grade</h4>
+                    <p>Based on ICMR research and medical standards</p>
+                </div>
+                <div class="feature-box">
+                    <h4>🔒 Secure</h4>
+                    <p>Your health data is encrypted and never shared</p>
+                </div>
+                <div class="feature-box">
+                    <h4>📊 Personalized</h4>
+                    <p>Get customized health recommendations based on your profile</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="faq-section">
+            <h2>Frequently Asked Questions</h2>
+            <div class="faq-container">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What is Type-1 Diabetes?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Type-1 Diabetes is an autoimmune condition where the pancreas doesn't produce enough insulin. It typically develops in children and young adults, though it can occur at any age. Unlike Type-2 Diabetes, it's not preventable through lifestyle changes alone.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How accurate is DiagnoSync?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        DiagnoSync uses a machine learning model trained on clinical data from the ICMR repository. While highly accurate, this tool is for informational purposes only and should not replace professional medical diagnosis. Always consult a healthcare provider for official diagnosis.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What data do I need to provide?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        You'll need to provide basic health metrics including age, BMI, fasting glucose levels, random glucose levels, HbA1c percentage, and information about any symptoms you may be experiencing (polyuria, polydipsia, weight loss, fatigue, blurred vision).
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Is my data safe?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes, your data is stored securely in an encrypted database. We use industry-standard security practices including password hashing with bcrypt and JWT token-based authentication. Your data is never shared with third parties.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What should I do if I get a high-risk result?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        If you receive a high-risk assessment, we recommend scheduling an appointment with an endocrinologist or your primary care physician. They can perform official diagnostic tests including fasting glucose tests, glucose tolerance tests, and HbA1c measurements.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can children use DiagnoSync?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        DiagnoSync can be used for individuals of all ages, but for children and minors, we strongly recommend parental supervision and consultation with a pediatrician. Children showing symptoms should receive immediate medical attention.
+                    </div>
+                </div>
+
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How often should I get tested?</span>
+                        <span class="faq-icon">▼</span>
+                    </div>
+                    <div class="faq-answer">
+                        This depends on your risk level and family history. If you have a family history of diabetes or received a moderate/high risk result, annual screening is recommended. Consult your healthcare provider for a personalized testing schedule.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // FAQ Toggle Functionality
+        function initializeFAQ() {
+            const faqItems = document.querySelectorAll(".faq-item");
+            faqItems.forEach(item => {
+                item.addEventListener("click", () => {
+                    // Close other items
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item) {
+                            otherItem.classList.remove("active");
+                        }
+                    });
+                    // Toggle current item
+                    item.classList.toggle("active");
+                });
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener("load", initializeFAQ);
+    </script>
+</body>
+</html>

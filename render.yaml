@@ -1,0 +1,28 @@
+services:
+  - type: web
+    name: diagnosync
+    env: python
+    plan: free
+    buildCommand: >
+      pip install -r requirements.txt
+    startCommand: python main.py
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: API_HOST
+        value: 0.0.0.0
+      - key: API_WORKERS
+        value: 1
+      - key: SECRET_KEY
+        generateValue: true
+    disk:
+      name: data
+      mountPath: /data
+      sizeGB: 1
+    healthCheckPath: /docs
+    healthCheckInterval: 300
+
+databases:
+  - name: diagnosync-storage
+    databaseName: diagnosync
+    user: diagnosync_user

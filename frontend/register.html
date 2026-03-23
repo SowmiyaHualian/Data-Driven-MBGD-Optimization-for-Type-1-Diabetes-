@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - DiagnoSync</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .auth-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+
+        .auth-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .auth-card h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .auth-card p {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .auth-button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .auth-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            color: #dc3545;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .success-message {
+            color: #155724;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 12px;
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .password-strength {
+            font-size: 12px;
+            margin-top: 4px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: none;
+        }
+
+        .strength-weak {
+            color: #dc3545;
+            background: #f8d7da;
+        }
+
+        .strength-medium {
+            color: #ff9800;
+            background: #fff3cd;
+        }
+
+        .strength-strong {
+            color: #28a745;
+            background: #d4edda;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h1>Create Account</h1>
+            <p>Join DiagnoSync for personalized diabetes risk assessment</p>
+
+            <div id="error-message" class="error-message"></div>
+            <div id="success-message" class="success-message"></div>
+
+            <form id="register-form">
+                <div class="form-group">
+                    <label for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" placeholder="Enter your full name">
+                </div>
+
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" required placeholder="Choose a username" minlength="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="Enter your email">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" required placeholder="Create a strong password" minlength="6">
+                    <div id="password-strength" class="password-strength"></div>
+                </div>
+
+                <button type="submit" class="auth-button">
+                    <span id="button-text">Create Account</span>
+                </button>
+            </form>
+
+            <div class="auth-link">
+                Already have an account? <a href="login.html">Sign in</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Password strength indicator
+        document.getElementById("password").addEventListener("input", (e) => {
+            const password = e.target.value;
+            const strengthDiv = document.getElementById("password-strength");
+            let strength = 0;
+
+            if (password.length >= 6) strength++;
+            if (password.length >= 8) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+            strengthDiv.style.display = password.length > 0 ? "block" : "none";
+
+            if (strength <= 2) {
+                strengthDiv.textContent = "Weak password";
+                strengthDiv.className = "password-strength strength-weak";
+            } else if (strength <= 3) {
+                strengthDiv.textContent = "Medium password";
+                strengthDiv.className = "password-strength strength-medium";
+            } else {
+                strengthDiv.textContent = "Strong password";
+                strengthDiv.className = "password-strength strength-strong";
+            }
+        });
+
+        // Handle registration form submission
+        document.getElementById("register-form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const full_name = document.getElementById("full_name").value;
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            const button = document.querySelector(".auth-button");
+            const buttonText = document.getElementById("button-text");
+            const errorDiv = document.getElementById("error-message");
+            const successDiv = document.getElementById("success-message");
+
+            // Clear messages
+            errorDiv.style.display = "none";
+            successDiv.style.display = "none";
+
+            // Disable button and show loading
+            button.disabled = true;
+            buttonText.innerHTML = '<span class="loading"></span>Creating account...';
+
+            try {
+                const response = await fetch("/api/register", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password,
+                        full_name: full_name || null
+                    })
+                });
+
+                const data = await response.json();
+                console.log("Registration response:", response.status, data);
+
+                if (response.ok) {
+                    successDiv.textContent = "Account created successfully! Redirecting to login...";
+                    successDiv.style.display = "block";
+
+                    // Redirect to login page after 2 seconds
+                    setTimeout(() => {
+                        window.location.href = "login.html";
+                    }, 2000);
+                } else {
+                    errorDiv.textContent = data.detail || "Registration failed";
+                    errorDiv.style.display = "block";
+                }
+            } catch (err) {
+                console.error("Registration error:", err);
+                errorDiv.textContent = "Network error. Please try again.";
+                errorDiv.style.display = "block";
+            } finally {
+                button.disabled = false;
+                buttonText.textContent = "Create Account";
+            }
+        });
+    </script>
+</body>
+</html>
