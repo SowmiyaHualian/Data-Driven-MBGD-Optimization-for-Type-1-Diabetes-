@@ -15,10 +15,6 @@ services:
         value: 1
       - key: SECRET_KEY
         generateValue: true
-    disk:
-      name: data
-      mountPath: /opt/render/project/data
-      sizeGB: 1
     healthCheckPath: /docs
     healthCheckInterval: 300
 
