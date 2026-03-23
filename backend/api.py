@@ -10,8 +10,8 @@ from dotenv import load_dotenv
 import pathlib
 
 from src.mbgd_model import MBGDLogisticRegression
-from src.data_preprocessing import load_and_preprocess_data
 from backend.database import db
+from sklearn.preprocessing import StandardScaler
 
 # Load environment variables
 load_dotenv()
@@ -44,19 +44,20 @@ app.add_middleware(
 
 # Paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-data_path = os.path.join(BASE_DIR, "data", "diabetes_synthetic_dataset.xlsx")
 model_path = os.path.join(BASE_DIR, "models", "saved_model.npz")
 
 # Load model components with error handling
 try:
-    logger.info("Loading data preprocessing model...")
-    _, _, _, _, scaler = load_and_preprocess_data(data_path)
-    logger.info("Scaler loaded successfully")
-    
-    logger.info("Loading trained model...")
+    logger.info("Loading trained model and scaler...")
     model = MBGDLogisticRegression()
     model.load_model(model_path)
-    logger.info("Model loaded successfully")
+    
+    # Load scaler from model file
+    model_data = np.load(model_path)
+    scaler = StandardScaler()
+    scaler.mean_ = model_data['scaler_mean']
+    scaler.scale_ = model_data['scaler_scale']
+    logger.info("Model and scaler loaded successfully")
 except Exception as e:
     logger.error(f"Error loading model: {str(e)}")
     raise
