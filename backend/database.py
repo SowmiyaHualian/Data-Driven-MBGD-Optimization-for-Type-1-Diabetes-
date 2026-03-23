@@ -12,7 +12,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DATABASE_PATH = os.getenv("DATABASE_PATH", "data/diagnosync.db")
+# Auto-detect database location: use /data on Render, local data/ for development
+_default_db = "data/diagnosync.db"
+if os.path.exists("/data") or os.getenv("ENVIRONMENT") == "production":
+    _default_db = "/data/diagnosync.db"
+
+DATABASE_PATH = os.getenv("DATABASE_PATH", _default_db)
 SECRET_KEY = os.getenv("SECRET_KEY", "your-secret-key-change-in-production")
 TOKEN_EXPIRY_HOURS = 24
 
