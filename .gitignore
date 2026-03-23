@@ -98,6 +98,23 @@ venv.bak/
 # IDE
 .vscode/
 .idea/
+
+# Database files (contain sensitive user data)
+*.db
+*.sqlite
+*.sqlite3
+data/diagnosync.db
+data/*.db
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+temp/
+tmp/
 *.swp
 *.swo
 *~
