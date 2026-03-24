@@ -29,7 +29,9 @@ class Database:
         """Initialize database with users table"""
         os.makedirs(os.path.dirname(self.db_path), exist_ok=True)
         
-        conn = sqlite3.connect(self.db_path)
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
         cursor = conn.cursor()
         
         # Create users table
@@ -73,8 +75,11 @@ class Database:
         conn.close()
     
     def _get_connection(self):
-        """Get database connection"""
-        return sqlite3.connect(self.db_path)
+        """Get database connection with concurrency settings"""
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA synchronous=NORMAL")
+        return conn
     
     def hash_password(self, password: str) -> str:
         """Hash password using bcrypt"""
