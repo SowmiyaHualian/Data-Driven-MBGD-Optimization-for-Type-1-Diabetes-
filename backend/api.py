@@ -46,23 +46,31 @@ app.add_middleware(
 def find_project_root():
     """Find the project root directory by searching for models/ folder"""
     current = os.path.dirname(os.path.abspath(__file__))
-    for _ in range(5):  # Search up to 5 levels up
+    # Walk up from backend/ directory
+    for _ in range(5):
         if os.path.exists(os.path.join(current, "models")):
             return current
-        current = os.path.dirname(current)
-    # Fallback to two levels up (normal case)
+        parent = os.path.dirname(current)
+        if parent == current:  # Reached filesystem root
+            break
+        current = parent
+    # Fallback: go up 2 levels from backend/api.py
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BASE_DIR = find_project_root()
 model_path = os.path.join(BASE_DIR, "models", "saved_model.npz")
 
 # Debug logging
+logger.info(f"Backend file: {os.path.abspath(__file__)}")
 logger.info(f"Project root: {BASE_DIR}")
 logger.info(f"Looking for model at: {model_path}")
+logger.info(f"Model exists: {os.path.exists(model_path)}")
 
 # Load model components with error handling
 try:
     logger.info("Loading trained model and scaler...")
+    if not os.path.exists(model_path):
+        raise FileNotFoundError(f"Model file not found at {model_path}")
     model = MBGDLogisticRegression()
     model.load_model(model_path)
     
