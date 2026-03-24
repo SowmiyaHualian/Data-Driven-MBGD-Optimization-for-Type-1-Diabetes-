@@ -42,9 +42,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Paths
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Paths - find project root by looking for models/ directory
+def find_project_root():
+    """Find the project root directory by searching for models/ folder"""
+    current = os.path.dirname(os.path.abspath(__file__))
+    for _ in range(5):  # Search up to 5 levels up
+        if os.path.exists(os.path.join(current, "models")):
+            return current
+        current = os.path.dirname(current)
+    # Fallback to two levels up (normal case)
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+BASE_DIR = find_project_root()
 model_path = os.path.join(BASE_DIR, "models", "saved_model.npz")
+
+# Debug logging
+logger.info(f"Project root: {BASE_DIR}")
+logger.info(f"Looking for model at: {model_path}")
 
 # Load model components with error handling
 try:
