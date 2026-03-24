@@ -151,13 +151,6 @@ def health_check() -> Dict[str, str]:
     return {"status": "healthy", "message": "API is operational"}
 
 
-# Root endpoint
-@app.get("/", tags=["Info"])
-def home() -> Dict[str, str]:
-    """Welcome endpoint"""
-    return {"message": "T1D Risk Prediction API Running", "version": "1.0.0"}
-
-
 # ==================== AUTHENTICATION ENDPOINTS ====================
 
 @app.post("/api/register", tags=["Auth"])
