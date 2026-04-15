@@ -1,4 +1,5 @@
 import os
+import sys
 import logging
 import numpy as np
 from fastapi import FastAPI, HTTPException, Header, Request
@@ -9,7 +10,12 @@ from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 import pathlib
 
-from src.mbgd_model import MBGDLogisticRegression
+# Add src directory to Python path
+src_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src")
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
+
+from ensemble import EnsembleModel
 from backend.database import db
 from sklearn.preprocessing import StandardScaler
 
@@ -58,30 +64,35 @@ def find_project_root():
     return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 BASE_DIR = find_project_root()
-model_path = os.path.join(BASE_DIR, "models", "saved_model.npz")
+mbgd_model_path = os.path.join(BASE_DIR, "models", "mbgd_model.npz")
+ann_model_path = os.path.join(BASE_DIR, "models", "ann_model.npz")
 
 # Debug logging
 logger.info(f"Backend file: {os.path.abspath(__file__)}")
 logger.info(f"Project root: {BASE_DIR}")
-logger.info(f"Looking for model at: {model_path}")
-logger.info(f"Model exists: {os.path.exists(model_path)}")
+logger.info(f"Looking for MBGD model at: {mbgd_model_path}")
+logger.info(f"Looking for ANN model at: {ann_model_path}")
+logger.info(f"MBGD model exists: {os.path.exists(mbgd_model_path)}")
+logger.info(f"ANN model exists: {os.path.exists(ann_model_path)}")
 
 # Load model components with error handling
 try:
-    logger.info("Loading trained model and scaler...")
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"Model file not found at {model_path}")
-    model = MBGDLogisticRegression()
-    model.load_model(model_path)
+    logger.info("Loading ensemble models (MBGD + ANN)...")
+    if not os.path.exists(mbgd_model_path) or not os.path.exists(ann_model_path):
+        raise FileNotFoundError(f"Model files not found. MBGD: {os.path.exists(mbgd_model_path)}, ANN: {os.path.exists(ann_model_path)}")
     
-    # Load scaler from model file
-    model_data = np.load(model_path)
+    # Initialize and load ensemble model
+    ensemble = EnsembleModel()
+    ensemble.load_models(mbgd_model_path, ann_model_path)
+    
+    # Load scaler from MBGD model file
+    model_data = np.load(mbgd_model_path)
     scaler = StandardScaler()
     scaler.mean_ = model_data['scaler_mean']
     scaler.scale_ = model_data['scaler_scale']
-    logger.info("Model and scaler loaded successfully")
+    logger.info("Ensemble model loaded successfully (MBGD + ANN)")
 except Exception as e:
-    logger.error(f"Error loading model: {str(e)}")
+    logger.error(f"Error loading models: {str(e)}")
     raise
 
 
@@ -328,9 +339,12 @@ def predict(data: Patient, authorization: str = Header(None)) -> Dict[str, Any]:
         # Scale input
         scaled = scaler.transform(values)
 
-        # Get prediction
-        probability = model.predict_proba(scaled)[0]
-        prediction = model.predict(scaled)[0]
+        # Get ensemble prediction
+        probability = ensemble.predict_proba(scaled)[0]
+        prediction = ensemble.predict(scaled)[0]
+        
+        # Get individual model predictions for insights
+        individual_preds = ensemble.get_individual_predictions(scaled)
         
         # Determine risk level
         if probability < 0.3:
@@ -354,7 +368,12 @@ def predict(data: Patient, authorization: str = Header(None)) -> Dict[str, Any]:
             "prediction": int(prediction),
             "message": "High Risk of Type-1 Diabetes - Consult a healthcare provider" if prediction == 1 else "Low Risk - Continue regular health monitoring",
             "risk_level": risk_level,
-            "rehabilitation_plan": rehab_plan
+            "rehabilitation_plan": rehab_plan,
+            "model_insights": {
+                "mbgd_probability": float(individual_preds["mbgd_probability"][0]),
+                "ann_probability": float(individual_preds["ann_probability"][0]),
+                "ensemble_method": "Weighted Average (50% MBGD + 50% ANN)"
+            }
         }
     except Exception as e:
         logger.error(f"Error during prediction: {str(e)}")

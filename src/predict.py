@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from mbgd_model import MBGDLogisticRegression
+from ensemble import EnsembleModel
 
 df = pd.read_excel("data/diabetes_synthetic_dataset.xlsx")
 
@@ -28,15 +28,29 @@ sample = np.array([[
 
 sample_scaled = scaler.transform(sample)
 
-model = MBGDLogisticRegression()
-model.load_model("models/saved_model.npz")
+# Load ensemble model
+ensemble = EnsembleModel()
+ensemble.load_models("models/mbgd_model.npz", "models/ann_model.npz")
 
-prob = model.predict_proba(sample_scaled)[0]
-prediction = model.predict(sample_scaled)[0]
+# Get ensemble prediction
+prob = ensemble.predict_proba(sample_scaled)[0]
+prediction = ensemble.predict(sample_scaled)[0]
 
-print("Risk Probability:", prob)
+# Get individual predictions for comparison
+individual = ensemble.get_individual_predictions(sample_scaled)
+
+print("\n" + "="*60)
+print("ENSEMBLE PREDICTION RESULTS")
+print("="*60)
+
+print(f"\nMBGD Probability: {individual['mbgd_probability'][0]:.4f}")
+print(f"ANN Probability:  {individual['ann_probability'][0]:.4f}")
+print(f"\nEnsemble Probability: {prob:.4f}")
+print(f"Ensemble Prediction: {prediction}")
 
 if prediction == 1:
-    print("High Risk of Type 1 Diabetes")
+    print("\n⚠️  HIGH RISK of Type 1 Diabetes")
 else:
-    print("Low Risk")
+    print("\n✓ LOW RISK - Continue regular health monitoring")
+    
+print("="*60)
